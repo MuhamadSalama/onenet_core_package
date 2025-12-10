@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "onenet_core"
+version = "0.1.0"
+description = "Core OneNet Backend Package with SQLAlchemy"
+authors = [
+    {name = "Muhammed Salama", email = "muhammed@example.com"},
+]
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "pydantic",
+    "email-validator",
+    "sqlalchemy",
+    "psycopg2-binary",
+]
+requires-python = ">=3.8"
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.setuptools.packages.find]
+where = ["src"]

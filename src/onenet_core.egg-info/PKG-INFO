@@ -1,0 +1,14 @@
+Metadata-Version: 2.4
+Name: onenet_core
+Version: 0.1.0
+Summary: Core OneNet Backend Package with SQLAlchemy
+Author-email: Muhammed Salama <muhammed@example.com>
+Requires-Python: >=3.8
+Requires-Dist: fastapi
+Requires-Dist: uvicorn
+Requires-Dist: pydantic
+Requires-Dist: email-validator
+Requires-Dist: sqlalchemy
+Requires-Dist: psycopg2-binary
+Provides-Extra: dev
+Requires-Dist: pytest; extra == "dev"
