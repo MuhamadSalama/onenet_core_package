@@ -30,12 +30,13 @@ def create_app() -> FastAPI:
     # CORS
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:8001"],
+        allow_origins=["*"],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
     )
 
+    # Middleware
     app.middleware("http")(request_id_middleware)
     app.add_exception_handler(APIError, api_error_handler)
     app.add_exception_handler(HTTPException, http_exception_handler)

@@ -2,6 +2,9 @@ from fastapi import Request, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from typing import Dict, Any
+from .logger import get_logger, get_client_ip
+
+logger = get_logger(__name__)
 
 class APIError(Exception):
     def __init__(self, status_code: int, error_code: str, message: str):
@@ -12,6 +15,14 @@ class APIError(Exception):
 
 async def api_error_handler(request: Request, exc: APIError):
     request_id = getattr(request.state, "request_id", None)
+    client_ip = get_client_ip(request)
+    
+    logger.error(
+        f"API Error: {exc.error_code} - {exc.message} "
+        f"(Status: {exc.status_code}, IP: {client_ip}, Path: {request.url.path}, "
+        f"Request ID: {request_id})"
+    )
+    
     payload = {
         "success": False,
         "error_code": exc.error_code,
@@ -23,6 +34,8 @@ async def api_error_handler(request: Request, exc: APIError):
 
 async def http_exception_handler(request: Request, exc: HTTPException):
     request_id = getattr(request.state, "request_id", None)
+    client_ip = get_client_ip(request)
+    
     # If detail is dict with error_code, keep it. Otherwise build a generic one.
     if isinstance(exc.detail, dict) and "error_code" in exc.detail:
         payload = exc.detail
@@ -35,12 +48,20 @@ async def http_exception_handler(request: Request, exc: HTTPException):
             "message": str(exc.detail) if exc.detail else "An error occurred",
         }
     payload["request_id"] = request_id
+    
+    logger.warning(
+        f"HTTP Exception: {payload.get('error_code', 'UNKNOWN')} - {payload.get('message', 'Unknown error')} "
+        f"(Status: {exc.status_code}, IP: {client_ip}, Path: {request.url.path}, "
+        f"Request ID: {request_id})"
+    )
+    
     return JSONResponse(status_code=exc.status_code, content=payload)
 
 
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     """Handle Pydantic validation errors"""
     request_id = getattr(request.state, "request_id", None)
+    client_ip = get_client_ip(request)
 
     errors = []
     if hasattr(exc, "errors"):
@@ -49,6 +70,12 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
             errors.append(
                 {"field": field, "message": error["msg"], "type": error["type"]}
             )
+
+    logger.warning(
+        f"Validation Error: {len(errors)} field(s) failed validation "
+        f"(IP: {client_ip}, Path: {request.url.path}, Request ID: {request_id}, "
+        f"Errors: {errors})"
+    )
 
     payload = {
         "success": False,

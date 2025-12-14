@@ -3,6 +3,9 @@ from datetime import timedelta
 from ..schemas import WalletBalanceResponse, TransactionListResponse, TransactionItem, UserRead
 from ..dependencies import require_permissions, get_current_user
 from ..utils.security import _now
+from ..logger import get_logger
+
+logger = get_logger(__name__)
 
 router_wallet = APIRouter(prefix="/api/v1/wallet", tags=["wallet"])
 
@@ -20,6 +23,8 @@ def get_balance(user: UserRead = Depends(get_current_user)):
         available = 1500.75
         ledger = 1600.75
 
+    logger.info(f"Wallet balance retrieved for user {user.email} (ID: {user.id})")
+    
     return WalletBalanceResponse(
         currency="SAR",
         available=available,
@@ -61,4 +66,10 @@ def get_transactions(user: UserRead = Depends(get_current_user)):
             created_at=now - timedelta(days=1),
         ),
     ]
+    
+    logger.info(
+        f"Wallet transactions retrieved for user {user.email} (ID: {user.id}), "
+        f"returned {len(items)} transactions"
+    )
+    
     return TransactionListResponse(items=items)

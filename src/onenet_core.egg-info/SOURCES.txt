@@ -4,6 +4,7 @@ src/onenet_core/config.py
 src/onenet_core/database.py
 src/onenet_core/dependencies.py
 src/onenet_core/exceptions.py
+src/onenet_core/logger.py
 src/onenet_core/main.py
 src/onenet_core.egg-info/PKG-INFO
 src/onenet_core.egg-info/SOURCES.txt
